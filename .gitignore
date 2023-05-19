@@ -1,0 +1,8 @@
+.idea
+.DS_Store
+.vscode
+*.log
+*.swp
+dist
+nohup.out
+mock_data/*.json
