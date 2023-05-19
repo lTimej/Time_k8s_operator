@@ -11,7 +11,7 @@ func Register(router *gin.Engine) {
 	user_controller := controller.NewUserController()
 	{
 		//登录
-		user_group.GET("/login", Response(user_controller.Login))
+		user_group.POST("/login", Response(user_controller.Login))
 		//注册
 		user_group.POST("/register", Response(user_controller.Register))
 	}

@@ -7,6 +7,7 @@ const (
 	LoginSuccess
 	LoginFailed
 	LoginUserDeleted
+	PasswordNotunanimous
 
 	SpaceCreateSuccess
 	SpaceCreateFailed
@@ -44,6 +45,7 @@ const (
 	SpaceAlreadyExist
 	SpaceNotFound
 	ResourceExhausted
+	DbErr
 )
 
 type UserStatus uint32
@@ -59,6 +61,7 @@ var messageForCode = map[uint32]string{
 	LoginSuccess:                "登录成功",
 	LoginFailed:                 "登录失败",
 	LoginUserDeleted:            "用户已注销",
+	PasswordNotunanimous:        "两次密码输入不一致",
 	SpaceCreateSuccess:          "创建成功",
 	SpaceCreateFailed:           "创建失败",
 	SpaceCreateNameDuplicate:    "不能和已有工作空间名称重复",
@@ -89,6 +92,7 @@ var messageForCode = map[uint32]string{
 	SpaceAlreadyExist:           "工作空间已存在",
 	SpaceNotFound:               "未找到该工作空间",
 	ResourceExhausted:           "资源不足,无法启动工作空间",
+	DbErr:                       "数据异常",
 }
 
 func GetMessage(code uint32) string {
