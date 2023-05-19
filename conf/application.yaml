@@ -1,0 +1,33 @@
+server:
+  host: "0.0.0.0"
+  port: 8998
+  name: "unknown"
+  mode: "Dev"
+
+mysql:
+  dataSourceName: "root:liujun@(172.20.16.20:13306)/k8s?charset=utf8mb4&parseTime=true&loc=Local"
+  maxOpenConns: 20
+  maxIdleConns: 10
+
+logger:
+  level: "DEBUG"
+  filePath: "./log_file"
+  fileName: "log.log"
+  maxFileSize: 1073741824
+  toFile: false
+
+redis:
+  addr: "172.20.16.20:16379"
+  poolSize: 10
+  minIdleConns: 5
+  password: "liujun"
+  db: 3
+
+grpc:
+  addr: "192.168.70.99:6387"
+
+email:
+  host: "smtp.qq.com"
+  port: 25
+  senderEmail: ""
+  authCode: ""
