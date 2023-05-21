@@ -23,7 +23,7 @@ var pool = sync.Pool{
 	},
 }
 
-func NewResponse(status int, code uint32, data interface{}) *Response {
+func NewResponseOk(status int, code uint32, data interface{}) *Response {
 	response := pool.Get().(*Response)
 	response.HttpStatus = status
 	response.Result.Data = data
@@ -32,8 +32,21 @@ func NewResponse(status int, code uint32, data interface{}) *Response {
 	return response
 }
 
+func NewResponseNotOk(status int, code uint32, data interface{}, msg string) *Response {
+	response := pool.Get().(*Response)
+	response.HttpStatus = status
+	response.Result.Data = data
+	response.Result.Code = code
+	response.Result.Msg = msg
+	return response
+}
+
 func ResponseOk(code uint32, data interface{}) *Response {
-	return NewResponse(http.StatusOK, code, data)
+	return NewResponseOk(http.StatusOK, code, data)
+}
+
+func RepsonseNotOk(msg string) *Response {
+	return NewResponseNotOk(http.StatusOK, 30, nil, msg)
 }
 
 func PutResponse(res *Response) {

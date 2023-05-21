@@ -6,6 +6,7 @@ import (
 	"Time_k8s_operator/internal/dao/myredis"
 	"Time_k8s_operator/internal/model"
 	"Time_k8s_operator/pkg/logger"
+	"Time_k8s_operator/pkg/middleware"
 	"Time_k8s_operator/routes"
 	"fmt"
 )
@@ -32,7 +33,7 @@ func main() {
 		panic(fmt.Errorf("load redis failed, reason:%s", err.Error()))
 	}
 	// 创建gin路由
-	engine := routes.NewRouter()
+	engine := routes.NewRouter(middleware.Cors())
 	// 注册路由
 	routes.Register(engine)
 	engine.Run(":8998")

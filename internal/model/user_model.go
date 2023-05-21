@@ -22,6 +22,10 @@ func (m *User) TableName() string {
 	return "user"
 }
 
+type LoginInfo struct{
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 type RegisterInfo struct {
 	Nickname   string `json:"nickname"`
 	Username   string `json:"username"`

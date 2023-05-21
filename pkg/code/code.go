@@ -3,12 +3,11 @@ package code
 const (
 	QuerySuccess uint32 = iota
 	QueryFailed
-
 	LoginSuccess
 	LoginFailed
 	LoginUserDeleted
-	PasswordNotunanimous
 
+	PasswordNotunanimous
 	SpaceCreateSuccess
 	SpaceCreateFailed
 	SpaceCreateNameDuplicate
@@ -16,7 +15,6 @@ const (
 
 	SpaceStartSuccess
 	SpaceStartFailed
-
 	SpaceDeleteSuccess
 	SpaceDeleteFailed
 	SpaceDeleteIsRunning
@@ -24,28 +22,31 @@ const (
 	SpaceStopSuccess
 	SpaceStopFailed
 	SpaceStopIsNotRunning
-
 	UserNameAvailable
-	UserNameUnavailable
+	UserNameNotPresent
+
 	UserSendValidateCodeSuccess
 	UserSendValidateCodeFailed
 	UserEmailCodeInvalid
 	UserEmailInvalid
 	UserUsernameExist
+
 	UserRegisterSuccess
 	UserRegisterFailed
 	UserEmailCodeIncorrect
 	UserEmailAlreadyInUse
-
 	SpaceStartNotExist
-	SpaceOtherSpaceIsRunning
 
+	SpaceOtherSpaceIsRunning
 	SpaceNameModifySuccess
 	SpaceNameModifyFailed
 	SpaceAlreadyExist
 	SpaceNotFound
+
+	CommonErr
 	ResourceExhausted
 	DbErr
+	UsernameOrPasswordErr
 )
 
 type UserStatus uint32
@@ -75,7 +76,7 @@ var messageForCode = map[uint32]string{
 	SpaceStopFailed:             "停止工作空间失败",
 	SpaceStopIsNotRunning:       "工作空间未运行",
 	UserNameAvailable:           "用户名可用",
-	UserNameUnavailable:         "用户名不可用",
+	UserNameNotPresent:          "用户名不存在",
 	UserSendValidateCodeFailed:  "验证码发送失败,请重试",
 	UserSendValidateCodeSuccess: "验证码发送成功,五分钟内有效",
 	UserEmailCodeInvalid:        "邮箱验证码不合法",
@@ -91,8 +92,10 @@ var messageForCode = map[uint32]string{
 	SpaceNameModifyFailed:       "名称修改失败",
 	SpaceAlreadyExist:           "工作空间已存在",
 	SpaceNotFound:               "未找到该工作空间",
+	CommonErr:                   "服务器开小差，稍等一会重试",
 	ResourceExhausted:           "资源不足,无法启动工作空间",
 	DbErr:                       "数据异常",
+	UsernameOrPasswordErr:       "用户名或密码错误",
 }
 
 func GetMessage(code uint32) string {

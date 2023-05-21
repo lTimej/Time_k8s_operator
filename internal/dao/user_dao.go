@@ -10,3 +10,15 @@ func FindOneUserByEmail(email string) bool {
 	db.DB.Where("email = ?", email).First(&user)
 	return model.User{} != user
 }
+
+func FindOneUserByUsername(username string) bool {
+	var user model.User
+	db.DB.Where("username = ?", username).First(&user)
+	return model.User{} == user
+}
+
+func FindOneUserByUsernameAndPassword(username, password string) bool {
+	var user model.User
+	db.DB.Where("username = ? AND password = ?", username, password).First(&user)
+	return model.User{} == user
+}

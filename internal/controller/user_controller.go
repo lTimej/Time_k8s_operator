@@ -25,8 +25,33 @@ func NewUserController() *UserController {
 }
 
 func (u *UserController) Login(c *gin.Context) *httpResp.Response {
-	msg := "ok"
-	return httpResp.ResponseOk(code.LoginSuccess, msg)
+	//获取参数
+	var login_info model.LoginInfo
+	err := c.ShouldBind(&login_info)
+	if err != nil {
+		logrus.Println(err)
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	username := login_info.Username
+	password := login_info.Password
+	//参数校验
+	if username == "" {
+		return httpResp.RepsonseNotOk("用户名不能为空")
+	}
+	if password == "" {
+		return httpResp.RepsonseNotOk("密码不能为空")
+	}
+	err = u.userService.Login(username, password)
+	switch err {
+	case service.ErrUserNotPresent:
+		return httpResp.ResponseOk(code.UserNameNotPresent, nil)
+	case service.ErrUserOrPasswordNOtIncorrect:
+		return httpResp.ResponseOk(code.UsernameOrPasswordErr, nil)
+	case nil:
+		return httpResp.ResponseOk(code.LoginSuccess, nil)
+	}
+	return httpResp.ResponseOk(code.LoginFailed, nil)
 }
 
 func (u *UserController) Register(c *gin.Context) *httpResp.Response {
