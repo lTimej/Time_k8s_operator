@@ -47,6 +47,7 @@ const (
 	ResourceExhausted
 	DbErr
 	UsernameOrPasswordErr
+	GetResourceSuccess
 )
 
 type UserStatus uint32
@@ -96,6 +97,7 @@ var messageForCode = map[uint32]string{
 	ResourceExhausted:           "资源不足,无法启动工作空间",
 	DbErr:                       "数据异常",
 	UsernameOrPasswordErr:       "用户名或密码错误",
+	GetResourceSuccess:          "获取资源成功",
 }
 
 func GetMessage(code uint32) string {

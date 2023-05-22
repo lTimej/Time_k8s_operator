@@ -15,4 +15,10 @@ func Register(router *gin.Engine) {
 		//注册
 		user_group.POST("/register", Response(user_controller.Register))
 	}
+
+	resource_group := router.Group("/resource")
+	resource_controller := controller.NewResourceController()
+	{
+		resource_group.GET("/getresource", Response(resource_controller.GetResource))
+	}
 }
