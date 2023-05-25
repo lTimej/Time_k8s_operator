@@ -26,3 +26,23 @@ func (rc ResourceController) GetResource(c *gin.Context) *httpResp.Response {
 	data := rc.resourceService.GetResource()
 	return httpResp.ResponseOk(code.GetResourceSuccess, data)
 }
+
+func (rc ResourceController) GetCpu(c *gin.Context) *httpResp.Response {
+	data := rc.resourceService.GetCpu()
+	return httpResp.ResponseOk(code.GetResourceSuccess, data)
+}
+
+func (rc ResourceController) GetMemory(c *gin.Context) *httpResp.Response {
+	data := rc.resourceService.GetMemory()
+	return httpResp.ResponseOk(code.GetResourceSuccess, data)
+}
+
+func (rc ResourceController) GetDisk(c *gin.Context) *httpResp.Response {
+	data := rc.resourceService.GetDisk()
+	return httpResp.ResponseOk(code.GetResourceSuccess, data)
+}
+
+func (rc ResourceController) GetNetwork(c *gin.Context) *httpResp.Response {
+	data := rc.resourceService.GetNetwork()
+	return httpResp.ResponseOk(code.GetResourceSuccess, data)
+}

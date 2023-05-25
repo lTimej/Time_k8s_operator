@@ -20,5 +20,9 @@ func Register(router *gin.Engine) {
 	resource_controller := controller.NewResourceController()
 	{
 		resource_group.GET("/getresource", Response(resource_controller.GetResource))
+		resource_group.GET("/cpu", Response(resource_controller.GetCpu))
+		resource_group.GET("/memory", Response(resource_controller.GetMemory))
+		resource_group.GET("/disk", Response(resource_controller.GetDisk))
+		resource_group.GET("/network", Response(resource_controller.GetNetwork))
 	}
 }

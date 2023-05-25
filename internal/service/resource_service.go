@@ -234,3 +234,51 @@ func (rs *ResourceService) GetResource() (data map[string]map[string]interface{}
 	fmt.Println(data)
 	return
 }
+
+func (rs *ResourceService) GetCpu() (data map[string]interface{}) {
+	wg.Add(1)
+	go getCPU()
+	wg.Wait()
+	data = map[string]interface{}{
+		"cpu_core":    cpu_core,
+		"cpu_utility": cpu_utility,
+	}
+	return
+}
+
+func (rs *ResourceService) GetMemory() (data map[string]interface{}) {
+	wg.Add(1)
+	go getMemory()
+	wg.Wait()
+	data = map[string]interface{}{
+		"memory_total":         memory_total,
+		"memory_free_percent":  memory_free_percent,
+		"memory_used_percent":  memory_used_percent,
+		"memory_other_percent": memory_other_percent,
+	}
+	return
+}
+
+func (rs *ResourceService) GetDisk() (data map[string]interface{}) {
+	wg.Add(1)
+	go getDisk()
+	wg.Wait()
+	data = map[string]interface{}{
+		"disk_total":         disk_total,
+		"disk_free_percent":  disk_free_percent,
+		"disk_used_percent":  disk_used_percent,
+		"disk_other_percent": disk_other_percent,
+	}
+	return
+}
+
+func (rs *ResourceService) GetNetwork() (data map[string]interface{}) {
+	wg.Add(1)
+	go getNetIO()
+	wg.Wait()
+	data = map[string]interface{}{
+		"net_download": net_download,
+		"net_upload":   net_upload,
+	}
+	return
+}
