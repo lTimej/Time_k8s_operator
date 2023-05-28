@@ -65,8 +65,8 @@ func getCPU() {
 	cpu_core, _ = cpu.Counts(true)
 	c, _ := cpu.Percent(time.Second, false)
 	cpu_utility, _ = strconv.ParseFloat(fmt.Sprintf("%.1f", c[0]), 64)
-	fmt.Println(cpu_core, cpu_utility)
-	wg.Done()
+	// fmt.Println(cpu_core, cpu_utility)
+	// wg.Done()
 }
 
 func getMemory() {
@@ -81,8 +81,8 @@ func getMemory() {
 
 	memory_other_percent, _ = strconv.ParseFloat(fmt.Sprintf("%.1f", 100-memory_free_percent-memory_used_percent), 64)
 
-	fmt.Println(memory_free_percent, memory_used_percent, memory_other_percent, memory_total)
-	wg.Done()
+	// fmt.Println(memory_free_percent, memory_used_percent, memory_other_percent, memory_total)
+	// wg.Done()
 }
 
 func getDisk() {
@@ -90,12 +90,12 @@ func getDisk() {
 	for _, partition := range partitioncstat {
 		device := partition.Device
 		if strings.HasPrefix(device, "/dev/") {
-			if strings.HasPrefix(device, "/dev/sda") {
+			if !strings.HasPrefix(device, "/dev/sda") {
 				continue
 			}
 			diskInfo, _ := disk.Usage(partition.Mountpoint)
 			disk_total = strconv.FormatInt(int64(math.Ceil(float64(diskInfo.Total)/1024/1024/1024)), 10) + "GB"
-			fmt.Println(disk_total, "===")
+			// fmt.Println(disk_total, "===")
 			disk_free_percent = float64(float64(diskInfo.Free)/float64(diskInfo.Total)) * 100
 
 			disk_free_percent, _ = strconv.ParseFloat(fmt.Sprintf("%.1f", disk_free_percent), 64)
@@ -108,8 +108,8 @@ func getDisk() {
 			}
 		}
 	}
-	fmt.Println(disk_free_percent, disk_used_percent, disk_other_percent, disk_total)
-	wg.Done()
+	// fmt.Println(disk_free_percent, disk_used_percent, disk_other_percent, disk_total)
+	// wg.Done()
 }
 
 func UploadDownloadFlow(dev string) (DownloadFlow, UploadFlow, error) {
@@ -191,15 +191,15 @@ func getNetIO() {
 	ioCountStat, _ := net.IOCounters(true)
 	for _, val := range ioCountStat {
 		name := val.Name
-		if strings.HasPrefix(name, "ens") {
+		if strings.HasPrefix(name, "ens") || strings.HasPrefix(name, "eth") {
 			net_download, net_upload, err = UploadDownloadFlow(name)
 			if err != nil {
 				logrus.Println(err)
 			}
-			fmt.Println(net_download, net_upload)
+			// fmt.Println(net_download, net_upload)
 		}
 	}
-	wg.Done()
+	// wg.Done()
 }
 
 func (rs *ResourceService) GetResource() (data map[string]map[string]interface{}) {
@@ -236,9 +236,10 @@ func (rs *ResourceService) GetResource() (data map[string]map[string]interface{}
 }
 
 func (rs *ResourceService) GetCpu() (data map[string]interface{}) {
-	wg.Add(1)
-	go getCPU()
-	wg.Wait()
+	// wg.Add(1)
+	// go getCPU()
+	// wg.Wait()
+	getCPU()
 	data = map[string]interface{}{
 		"cpu_core":    cpu_core,
 		"cpu_utility": cpu_utility,
@@ -247,9 +248,10 @@ func (rs *ResourceService) GetCpu() (data map[string]interface{}) {
 }
 
 func (rs *ResourceService) GetMemory() (data map[string]interface{}) {
-	wg.Add(1)
-	go getMemory()
-	wg.Wait()
+	// wg.Add(1)
+	// go getMemory()
+	// wg.Wait()
+	getMemory()
 	data = map[string]interface{}{
 		"memory_total":         memory_total,
 		"memory_free_percent":  memory_free_percent,
@@ -260,9 +262,10 @@ func (rs *ResourceService) GetMemory() (data map[string]interface{}) {
 }
 
 func (rs *ResourceService) GetDisk() (data map[string]interface{}) {
-	wg.Add(1)
+	// wg.Add(1)
+	// go getDisk()
+	// wg.Wait()
 	go getDisk()
-	wg.Wait()
 	data = map[string]interface{}{
 		"disk_total":         disk_total,
 		"disk_free_percent":  disk_free_percent,
@@ -273,9 +276,10 @@ func (rs *ResourceService) GetDisk() (data map[string]interface{}) {
 }
 
 func (rs *ResourceService) GetNetwork() (data map[string]interface{}) {
-	wg.Add(1)
+	// wg.Add(1)
+	// go getNetIO()
+	// wg.Wait()
 	go getNetIO()
-	wg.Wait()
 	data = map[string]interface{}{
 		"net_download": net_download,
 		"net_upload":   net_upload,
