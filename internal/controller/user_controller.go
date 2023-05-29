@@ -42,14 +42,16 @@ func (u *UserController) Login(c *gin.Context) *httpResp.Response {
 	if password == "" {
 		return httpResp.RepsonseNotOk("密码不能为空")
 	}
-	err = u.userService.Login(username, password)
+	user, err := u.userService.Login(username, password)
 	switch err {
 	case service.ErrUserNotPresent:
 		return httpResp.ResponseOk(code.UserNameNotPresent, nil)
 	case service.ErrUserOrPasswordNOtIncorrect:
 		return httpResp.ResponseOk(code.UsernameOrPasswordErr, nil)
+	case service.ErrGenToken:
+		return httpResp.ResponseOk(code.GenTokenFailed, nil)
 	case nil:
-		return httpResp.ResponseOk(code.LoginSuccess, nil)
+		return httpResp.ResponseOk(code.LoginSuccess, user)
 	}
 	return httpResp.ResponseOk(code.LoginFailed, nil)
 }

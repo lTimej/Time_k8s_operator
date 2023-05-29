@@ -17,8 +17,8 @@ func FindOneUserByUsername(username string) bool {
 	return model.User{} == user
 }
 
-func FindOneUserByUsernameAndPassword(username, password string) bool {
+func FindOneUserByUsernameAndPassword(username, password string)(*model.User,bool) {
 	var user model.User
 	db.DB.Where("username = ? AND password = ?", username, password).First(&user)
-	return model.User{} == user
+	return &user,model.User{} == user
 }

@@ -5,6 +5,7 @@ import (
 	"Time_k8s_operator/internal/dao/db"
 	"Time_k8s_operator/internal/model"
 	"Time_k8s_operator/pkg/logger"
+	"Time_k8s_operator/pkg/utils/encrypt"
 	"errors"
 	"time"
 
@@ -13,11 +14,12 @@ import (
 )
 
 var (
-	ErrEmailCodeIncorrect = errors.New("email code incorrect")
-	ErrEmailAlreadyInUse  = errors.New("this email had been registered")
-	DbErr                 = errors.New("db error")
+	ErrEmailCodeIncorrect         = errors.New("email code incorrect")
+	ErrEmailAlreadyInUse          = errors.New("this email had been registered")
+	DbErr                         = errors.New("db error")
 	ErrUserOrPasswordNOtIncorrect = errors.New("用户名或密码错误")
-	ErrUserNotPresent = errors.New("用户不存在")
+	ErrUserNotPresent             = errors.New("用户不存在")
+	ErrGenToken                   = errors.New("token生成失败")
 )
 
 type UserService struct {
@@ -32,17 +34,25 @@ func NewUserService() *UserService {
 	}
 }
 
-func (u *UserService) Login(username,password string) error{
-	if dao.FindOneUserByUsername(username){
+func (u *UserService) Login(username, password string) (*model.User, error) {
+	if dao.FindOneUserByUsername(username) {
 		u.logger.Infof("用户不存在")
-		return ErrUserNotPresent
+		return nil, ErrUserNotPresent
 	}
-	if dao.FindOneUserByUsernameAndPassword(username,password){
+	user := &model.User{}
+	user, ok := dao.FindOneUserByUsernameAndPassword(username, password)
+	if ok {
 		u.logger.Infof("用户名或密码错误")
-		return ErrUserOrPasswordNOtIncorrect
+		return nil, ErrUserOrPasswordNOtIncorrect
 	}
-
-	return nil
+	//生成token
+	token, err := encrypt.GenToken(username, user.Uid, user.Id)
+	if err != nil {
+		u.logger.Infof("token生成失败")
+		return nil, ErrGenToken
+	}
+	user.Token = token
+	return user, nil
 }
 
 func (u *UserService) Register(register_info model.RegisterInfo) error {
