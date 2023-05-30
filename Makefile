@@ -3,7 +3,7 @@ SHELL = /usr/bin/env bash -o pipefail
 
 .PHONY: build
 build:
-	go build -o bin/manager ./cmd/server/main.go && ./bin/manager -i table
+	go build -o bin/manager ./cmd/server/main.go && ./bin/manager
 
 .PHONY: run
 run:
