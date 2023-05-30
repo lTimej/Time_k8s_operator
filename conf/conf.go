@@ -9,6 +9,7 @@ var (
 	MysqlConfig  *MysqlConf
 	RedisConfig  *RedisConf
 	LoggerConfig *LoggerConf
+	GrpcConfig   *GrpcConf
 )
 
 type ServerConf struct {
@@ -40,10 +41,14 @@ type LoggerConf struct {
 	ToFile      bool
 }
 
+type GrpcConf struct {
+	Addr string
+}
+
 func InitConf() error {
 	viper.SetConfigName("application")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../../conf")
+	viper.AddConfigPath("./conf")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return err
@@ -52,6 +57,7 @@ func InitConf() error {
 	initMysqlConf()
 	initRedisConf()
 	initLoggerConf()
+	initGrpcConf()
 	return nil
 }
 
@@ -89,5 +95,11 @@ func initLoggerConf() {
 		FileName:    viper.GetString("logger.fileName"),
 		MaxFileSize: viper.GetUint64("logger.maxFileSize"),
 		ToFile:      viper.GetBool("logger.toFile"),
+	}
+}
+
+func initGrpcConf() {
+	GrpcConfig = &GrpcConf{
+		Addr: viper.GetString("grpc.addr"),
 	}
 }
