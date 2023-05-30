@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 	// 创建gin路由
-	engine := routes.NewRouter(middleware.Cors())
+	engine := routes.NewRouter(middleware.Cors(), middleware.Auth())
 	// 注册路由
 	routes.Register(engine)
 	engine.Run(":8998")
