@@ -25,4 +25,14 @@ func Register(router *gin.Engine) {
 		resource_group.GET("/disk", Response(resource_controller.GetDisk))
 		resource_group.GET("/network", Response(resource_controller.GetNetwork))
 	}
+
+	space_group := router.Group("/space")
+	space_controller := controller.NewCodeServiceController()
+	{
+		space_group.POST("/create", Response(space_controller.CreateSpace))
+		space_group.POST("/create/run", Response(space_controller.CreateSpaceAndRun))
+		space_group.PUT("/create/stop", Response(space_controller.StopSpace))
+		space_group.PUT("/create/start", Response(space_controller.StartSpace))
+		space_group.DELETE("/create/delete", Response(space_controller.DeleteSpace))
+	}
 }

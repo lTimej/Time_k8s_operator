@@ -4,6 +4,7 @@ import (
 	code2 "Time_k8s_operator/pkg/code"
 	"net/http"
 	"sync"
+	"github.com/gin-gonic/gin"
 )
 
 type respResult struct {
@@ -54,4 +55,9 @@ func PutResponse(res *Response) {
 		res.Result.Data = nil
 		pool.Put(res)
 	}
+}
+
+func HttpResp(c *gin.Context,code uint32,data interface{}){
+	r := NewResponseOk(http.StatusOK, code, data)
+	c.JSON(r.HttpStatus, &r.Result)
 }

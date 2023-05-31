@@ -49,6 +49,7 @@ const (
 	UsernameOrPasswordErr
 	GetResourceSuccess
 	GenTokenFailed
+	LoginNotAuth
 )
 
 type UserStatus uint32
@@ -100,6 +101,7 @@ var messageForCode = map[uint32]string{
 	UsernameOrPasswordErr:       "用户名或密码错误",
 	GetResourceSuccess:          "获取资源成功",
 	GenTokenFailed:              "生成token失败",
+	LoginNotAuth:                "登录未认证",
 }
 
 func GetMessage(code uint32) string {

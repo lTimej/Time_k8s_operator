@@ -5,7 +5,10 @@ import (
 )
 
 func InitTable() error {
-	if err := db.DB.AutoMigrate(&User{}, &TemplateKind{}, &SpaceTemplate{}, &SpaceSpec{}, &Space{}); err != nil {
+	// if err := db.DB.AutoMigrate(&User{}, &TemplateKind{}, &SpaceTemplate{}, &SpaceSpec{}, &Space{}); err != nil {
+	// 	return err
+	// }
+	if err := db.DB.AutoMigrate(&Space{}); err != nil {
 		return err
 	}
 	return nil

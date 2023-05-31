@@ -47,3 +47,45 @@ func InsertSpace(space *model.Space) (space_id uint32, err error) {
 	query.First(&s)
 	return s.Id, nil
 }
+
+func UpdateSpaceStatusAndRunningStatus(space_id uint32, status int, running_status uint32) error {
+	var space model.Space
+	if err := db.DB.Model(&space).Where("id = ?", space_id).Updates(map[string]interface{}{"status": status, "running_status": running_status}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateSpaceStatus(space_id uint32, status int) error {
+	var space model.Space
+	if err := db.DB.Model(&space).Where("id = ?", space_id).Update("status", status).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateSpaceRunningStatus(space_id uint32, running_status int) error {
+	var space model.Space
+	if err := db.DB.Model(&space).Where("id = ?", space_id).Update("running_status", running_status).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func FindSpaceOneByIdAndUserId(id, user_id uint32) (space model.Space, ok bool) {
+	db.DB.Where("id = ? AND user_id = ?", id, user_id).First(&space)
+	return space, model.Space{} == space
+}
+
+func FindSpaceOneById(id uint32) (space model.Space) {
+	db.DB.Where("id = ?", id).First(&space)
+	return space
+}
+
+func DeleteSpaceById(space_id uint32) error {
+	var space model.Space
+	if err := db.DB.Model(&space).Where("id = ?", space_id).Update("status", model.SpaceStatusDeleted).Error; err != nil {
+		return err
+	}
+	return nil
+}

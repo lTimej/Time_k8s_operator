@@ -11,7 +11,7 @@ type Cache struct {
 }
 
 var (
-	caches map[string]*Cache
+	caches = map[string]*Cache{}
 	lock   sync.Mutex
 )
 
