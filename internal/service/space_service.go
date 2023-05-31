@@ -30,17 +30,18 @@ const (
 )
 
 var (
-	ErrReqParamInvalid       = errors.New("参数错误")
-	ErrNameDuplicate         = errors.New("空间名称重复")
-	ErrReachMaxSpaceCount    = errors.New("达到最大空间数量")
-	ErrSpaceCreate           = errors.New("空间创建失败")
-	ErrSpaceStart            = errors.New("空间启动失败")
-	ErrSpaceAlreadyExist     = errors.New("空间已经存在")
-	ErrSpaceNotFound         = errors.New("空间不存在")
-	ErrResourceExhausted     = errors.New("资源不足")
-	ErrOtherSpaceIsRunning   = errors.New("其他空间正在运行")
-	ErrWorkSpaceIsNotRunning = errors.New("工作空间没有运行")
-	ErrWorkSpaceNotExist     = errors.New("工作空间不存在")
+	ErrReqParamInvalid           = errors.New("参数错误")
+	ErrNameDuplicate             = errors.New("空间名称重复")
+	ErrReachMaxSpaceCount        = errors.New("达到最大空间数量")
+	ErrSpaceCreate               = errors.New("空间创建失败")
+	ErrSpaceStart                = errors.New("空间启动失败")
+	ErrSpaceAlreadyExist         = errors.New("空间已经存在")
+	ErrSpaceTemplateAlreadyExist = errors.New("空间模板已经存在")
+	ErrSpaceNotFound             = errors.New("空间不存在")
+	ErrResourceExhausted         = errors.New("资源不足")
+	ErrOtherSpaceIsRunning       = errors.New("其他空间正在运行")
+	ErrWorkSpaceIsNotRunning     = errors.New("工作空间没有运行")
+	ErrWorkSpaceNotExist         = errors.New("工作空间不存在")
 )
 
 type CodeService struct {
@@ -63,6 +64,14 @@ func NewCodeService() *CodeService {
 		templateCache: factory.TemplateCache(),
 		specCache:     factory.SpaceSpecCache(),
 	}
+}
+
+func (cs *CodeService) CreateTemplateSpace(req model.SpaceTemplateCreateOption) (*model.SpaceTemplate, error) {
+	_, ok := dao.FindOneTemplateByName(req.Name)
+	if !ok {
+		return nil, ErrSpaceTemplateAlreadyExist
+	}
+
 }
 
 func (cs *CodeService) CreateSpace(req model.SpaceCreateOption) (*model.Space, error) {
