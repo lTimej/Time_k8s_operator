@@ -50,6 +50,8 @@ const (
 	GetResourceSuccess
 	GenTokenFailed
 	LoginNotAuth
+	ErrToKenInvalid
+	ErrTokenExpire
 )
 
 type UserStatus uint32
@@ -102,6 +104,8 @@ var messageForCode = map[uint32]string{
 	GetResourceSuccess:          "获取资源成功",
 	GenTokenFailed:              "生成token失败",
 	LoginNotAuth:                "登录未认证",
+	ErrToKenInvalid:             "token验证失败",
+	ErrTokenExpire: "token过期",
 }
 
 func GetMessage(code uint32) string {

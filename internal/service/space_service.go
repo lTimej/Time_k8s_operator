@@ -71,7 +71,7 @@ func (cs *CodeService) CreateTemplateSpace(req model.SpaceTemplateCreateOption) 
 	if !ok {
 		return nil, ErrSpaceTemplateAlreadyExist
 	}
-
+	return nil, nil
 }
 
 func (cs *CodeService) CreateSpace(req model.SpaceCreateOption) (*model.Space, error) {

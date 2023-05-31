@@ -10,6 +10,11 @@ import (
 
 var CustomSecret = []byte("k8s-test")
 
+var (
+	ErrToKenInvalid = errors.New("token验证失败")
+	ErrTokenExpire  = errors.New("token过期")
+)
+
 const TokenExpireDuration = time.Hour * 24
 
 type MyClaim struct {
@@ -39,10 +44,10 @@ func VerifyToken(tokenString string) (*MyClaim, error) {
 	})
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return nil, ErrTokenExpire
 	}
 	if myclaim, ok := token.Claims.(*MyClaim); ok && token.Valid {
 		return myclaim, nil
 	}
-	return nil, errors.New("token验证失败")
+	return nil, ErrToKenInvalid
 }
