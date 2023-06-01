@@ -3,11 +3,12 @@ package dao
 import (
 	"Time_k8s_operator/internal/dao/db"
 	"Time_k8s_operator/internal/model"
+	"time"
 )
 
 const (
-	TemplateUsing = iota
-	TemplateDeleted
+	TemplateDeleted = iota
+	TemplateUsing
 )
 
 func FindAllSpaceTemplateByUsing() (tmps []model.SpaceTemplate) {
@@ -22,6 +23,11 @@ func FindAllTemplateKind() (kinds []model.TemplateKind) {
 
 func FindAllSpec() (specs []model.SpaceSpec) {
 	db.DB.Find(&specs)
+	return
+}
+
+func FindAllSpaceByUserId(user_id uint32) (spaces []*model.Space) {
+	db.DB.Where("user_id = ? AND status != 0", user_id).Find(&spaces)
 	return
 }
 
@@ -44,7 +50,7 @@ func InsertSpace(space *model.Space) (space_id uint32, err error) {
 		return 0, err
 	}
 	var s model.Space
-	query.First(&s)
+	query.Where("sid = ? AND name = ?", space.Sid, space.Name).First(&s)
 	return s.Id, nil
 }
 
@@ -65,10 +71,17 @@ func UpdateSpaceStatus(space_id uint32, status int) error {
 }
 
 func UpdateSpaceRunningStatus(space_id uint32, running_status int) error {
-	var space model.Space
-	if err := db.DB.Model(&space).Where("id = ?", space_id).Update("running_status", running_status).Error; err != nil {
+	space := FindSpaceOneById(space_id)
+	now := time.Now()
+	space.StopTime = now
+	space.TotalTime = now.Sub(space.CreateTime)
+	space.RunningStatus = uint32(running_status)
+	if err := db.DB.Save(&space).Error; err != nil {
 		return err
 	}
+	// if err := db.DB.Model(&space).Where("id = ?", space_id).Updates(map[string]interface{}{"running_status": running_status, "stop_time": now}).Error; err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

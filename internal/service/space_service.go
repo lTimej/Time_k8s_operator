@@ -8,7 +8,6 @@ import (
 	"Time_k8s_operator/internal/rpc"
 	"Time_k8s_operator/pb"
 	"Time_k8s_operator/pkg/logger"
-	"Time_k8s_operator/pkg/utils"
 	"context"
 	"errors"
 	"fmt"
@@ -30,6 +29,9 @@ const (
 )
 
 var (
+	ErrSpaceTemplateCreate       = errors.New("空间模板创建失败")
+	ErrSpaceTemplateUpdate       = errors.New("空间模板修改失败")
+	ErrSpaceTemplateDelete       = errors.New("空间模板删除失败")
 	ErrReqParamInvalid           = errors.New("参数错误")
 	ErrNameDuplicate             = errors.New("空间名称重复")
 	ErrReachMaxSpaceCount        = errors.New("达到最大空间数量")
@@ -37,6 +39,7 @@ var (
 	ErrSpaceStart                = errors.New("空间启动失败")
 	ErrSpaceAlreadyExist         = errors.New("空间已经存在")
 	ErrSpaceTemplateAlreadyExist = errors.New("空间模板已经存在")
+	ErrSpaceTemplateNotExist     = errors.New("空间模板不存在")
 	ErrSpaceNotFound             = errors.New("空间不存在")
 	ErrResourceExhausted         = errors.New("资源不足")
 	ErrOtherSpaceIsRunning       = errors.New("其他空间正在运行")
@@ -66,12 +69,61 @@ func NewCodeService() *CodeService {
 	}
 }
 
+func (cs *CodeService) GetTemplateSpace() []*model.SpaceTemplate {
+	space_templates := dao.FindAllTemplate()
+	return space_templates
+}
+
 func (cs *CodeService) CreateTemplateSpace(req model.SpaceTemplateCreateOption) (*model.SpaceTemplate, error) {
 	_, ok := dao.FindOneTemplateByName(req.Name)
 	if !ok {
 		return nil, ErrSpaceTemplateAlreadyExist
 	}
-	return nil, nil
+	now := time.Now()
+	space_template := &model.SpaceTemplate{
+		KindId:      req.KindId,
+		Name:        req.Name,
+		Description: req.Description,
+		Tags:        req.Tags,
+		Image:       req.Image,
+		Avatar:      req.Avatar,
+		Status:      1,
+		CreateTime:  now,
+		DeleteTime:  now,
+	}
+	st_id, err := dao.InsertSpaceTemplate(space_template)
+	if err != nil {
+		cs.logger.Errorf("创建空间模板失败:%v", err)
+		return nil, ErrSpaceTemplateCreate
+	}
+	space_template.Id = st_id
+	return space_template, nil
+}
+
+func (cs *CodeService) EditTemplateSpace(req model.SpaceTemplateCreateOption, st_id string) error {
+	_, ok := dao.FindOneTemplateById(st_id)
+	if ok {
+		return ErrSpaceTemplateNotExist
+	}
+	err := dao.UpdateSpaceTemplate(req, st_id)
+	if err != nil {
+		cs.logger.Errorf("修改空间模板失败:%v", err)
+		return ErrSpaceTemplateUpdate
+	}
+	return nil
+}
+
+func (cs *CodeService) DeleteTemplateSpace(st_id string) error {
+	_, ok := dao.FindOneTemplateById(st_id)
+	if ok {
+		return ErrSpaceTemplateNotExist
+	}
+	err := dao.DeleteSpaceTemplate(st_id)
+	if err != nil {
+		cs.logger.Errorf("删除空间模板失败:%v", err)
+		return ErrSpaceTemplateDelete
+	}
+	return nil
 }
 
 func (cs *CodeService) CreateSpace(req model.SpaceCreateOption) (*model.Space, error) {
@@ -110,7 +162,6 @@ func (cs *CodeService) CreateSpace(req model.SpaceCreateOption) (*model.Space, e
 		TotalTime:     0,
 		Sid:           generateSID(),
 	}
-	fmt.Println(space.Sid, "222222222")
 	id, err := dao.InsertSpace(space)
 	if err != nil {
 		cs.logger.Errorf("创建空间失败:%v", err)
@@ -120,8 +171,7 @@ func (cs *CodeService) CreateSpace(req model.SpaceCreateOption) (*model.Space, e
 	return space, nil
 }
 
-func (cs *CodeService) CreateSpaceAndRun(req model.SpaceCreateOption) (*model.Space, error) {
-	uid := utils.IntToString(req.UserId)
+func (cs *CodeService) CreateSpaceAndRun(req model.SpaceCreateOption, uid string) (*model.Space, error) {
 	//判断是否有其他空间正在运行
 	isRunning, err := myredis.IsRunningSpace(uid)
 	if err != nil {
@@ -134,18 +184,18 @@ func (cs *CodeService) CreateSpaceAndRun(req model.SpaceCreateOption) (*model.Sp
 	if err != nil {
 		return nil, err
 	}
-	return cs.runSpace(space, cs.rpc.CreateSpace)
+	return cs.runSpace(space, uid, cs.rpc.CreateSpace)
 }
 
 type StartFunc func(ctx context.Context, in *pb.WorkspaceInfo, opts ...grpc.CallOption) (*pb.WorkspaceRunningInfo, error)
 
-func (cs *CodeService) runSpace(space *model.Space, startFunc StartFunc) (*model.Space, error) {
+func (cs *CodeService) runSpace(space *model.Space, uid string, startFunc StartFunc) (*model.Space, error) {
 	space_template := cs.templateCache.GetSpaceTemplate(space.TemplateId)
 	if space_template == nil {
-		cs.logger.Warnf("get tmpl cache error")
+		cs.logger.Warnf("获取模板缓存失败")
 		return nil, ErrSpaceStart
 	}
-	pod_name := cs.genPodName(space.Sid, utils.IntToString(space.UserId))
+	pod_name := cs.genPodName(space.Sid, uid)
 	fmt.Println(pod_name)
 	pod := pb.WorkspaceInfo{
 		Name:            pod_name,
@@ -194,7 +244,7 @@ Loop:
 			Host: host,
 			Sid:  space.Sid,
 		}
-		err = myredis.RunningSpace(utils.IntToString(space.UserId), running_space)
+		err = myredis.RunningSpace(uid, running_space)
 		if err != nil {
 			cs.logger.Errorf("添加pod到redis失败:%v", err)
 			return nil, ErrSpaceStart
@@ -216,15 +266,16 @@ Loop:
 }
 
 func (cs *CodeService) StopSpace(space_id uint32, uid, sid string) error {
-	//先删除redis
-	isRunning, err := myredis.DeleteRunningSpace(uid)
+	//先检查运行空间是否存在
+	isRunning, err := myredis.CheckRunningSpace(sid)
 	if err != nil {
-		// c.logger.Warnf("check is running error:%v", err)
+		cs.logger.Warnf("检查空间运行状态失败:%v", err)
 		return err
 	}
 	if !isRunning {
 		return ErrWorkSpaceIsNotRunning
 	}
+	//然后删出对应的pod
 	pod_name := cs.genPodName(sid, uid)
 	_, err = cs.rpc.StopSpace(context.Background(), &pb.QueryOption{
 		Name:      pod_name,
@@ -233,6 +284,15 @@ func (cs *CodeService) StopSpace(space_id uint32, uid, sid string) error {
 	if err != nil {
 		cs.logger.Warnf("pod删除失败err:%v", err)
 		return err
+	}
+	//删除redis
+	isRunning, err = myredis.DeleteRunningSpace(uid)
+	if err != nil {
+		cs.logger.Warnf("检查空间运行状态失败:%v", err)
+		return err
+	}
+	if !isRunning {
+		return ErrWorkSpaceIsNotRunning
 	}
 	//修改runningstatus状态
 	err = dao.UpdateSpaceRunningStatus(space_id, model.RunningStatusStop)
@@ -267,7 +327,7 @@ func (cs *CodeService) StartSpace(id, user_id uint32, uid string) (*model.Space,
 		}
 		space.Spec = *spec
 	}
-	ret, err := cs.runSpace(&space, startFunc)
+	ret, err := cs.runSpace(&space, uid, startFunc)
 	if err != nil {
 		cs.logger.Warnf("启动工作空间失败:%v", err)
 		return nil, err
@@ -280,7 +340,7 @@ func (cs *CodeService) StartSpace(id, user_id uint32, uid string) (*model.Space,
 	return ret, err
 }
 
-func (cs *CodeService) DeleteSpace(id uint32) error {
+func (cs *CodeService) DeleteSpace(id uint32, uid string) error {
 	space := dao.FindSpaceOneById(id)
 	isRunning, err := myredis.CheckRunningSpace(space.Sid)
 	if err != nil {
@@ -290,7 +350,7 @@ func (cs *CodeService) DeleteSpace(id uint32) error {
 	if isRunning {
 		return ErrOtherSpaceIsRunning
 	}
-	pod_name := cs.genPodName(space.Sid, utils.IntToString(space.UserId))
+	pod_name := cs.genPodName(space.Sid, uid)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 	_, err = cs.rpc.DeleteSpace(ctx, &pb.QueryOption{
@@ -306,4 +366,13 @@ func (cs *CodeService) DeleteSpace(id uint32) error {
 
 func (cs *CodeService) genPodName(sid string, uid string) string {
 	return strings.Join([]string{"ws", uid, sid}, "-")
+}
+
+func (cs *CodeService) GetSpace(user_id uint32) []*model.Space {
+	spaces := dao.FindAllSpaceByUserId(user_id)
+	for _, space := range spaces {
+		spec := cs.specCache.GetSpaceSpec(space.SpecId)
+		space.Spec = *spec
+	}
+	return spaces
 }

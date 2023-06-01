@@ -26,13 +26,22 @@ func Register(router *gin.Engine) {
 		resource_group.GET("/network", Response(resource_controller.GetNetwork))
 	}
 
-	space_group := router.Group("/space")
+	space_template_group := router.Group("/space/template")
 	space_controller := controller.NewCodeServiceController()
 	{
+		space_template_group.GET("/get", Response(space_controller.GetTemplateSpace))
+		space_template_group.POST("/create", Response(space_controller.CreateTemplateSpace))
+		space_template_group.PUT("/update/:st_id", Response(space_controller.EditTemplateSpace))
+		space_template_group.DELETE("/delete/:st_id", Response(space_controller.DeleteTemplateSpace))
+	}
+
+	space_group := router.Group("/space")
+	{
+		space_group.GET("/get", Response(space_controller.GetSpace))
 		space_group.POST("/create", Response(space_controller.CreateSpace))
 		space_group.POST("/create/run", Response(space_controller.CreateSpaceAndRun))
-		space_group.PUT("/create/stop", Response(space_controller.StopSpace))
-		space_group.PUT("/create/start", Response(space_controller.StartSpace))
-		space_group.DELETE("/create/delete", Response(space_controller.DeleteSpace))
+		space_group.PUT("/stop", Response(space_controller.StopSpace))
+		space_group.PUT("/start", Response(space_controller.StartSpace))
+		space_group.DELETE("/delete", Response(space_controller.DeleteSpace))
 	}
 }

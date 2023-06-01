@@ -4,7 +4,6 @@ import (
 	"Time_k8s_operator/internal/dao"
 	"Time_k8s_operator/internal/model"
 	"Time_k8s_operator/pkg/cache"
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -30,9 +29,9 @@ func newSpaceCache() *SpaceCache {
 
 func (sc *SpaceCache) refresh() {
 	specs := dao.FindAllSpec()
-	fmt.Println(specs, "$$$$$$$$$$$$$$$$$$$$$$$$")
+	// fmt.Println(specs, "$$$$$$$$$$$$$$$$$$$$$$$$")
 	m := make(map[string]interface{}, len(specs))
-	for i, _ := range specs {
+	for i := 0; i < len(specs); i++ {
 		m[strconv.Itoa(int(specs[i].Id))] = &specs[i]
 	}
 	sc.cache.Replace(m)
@@ -40,7 +39,7 @@ func (sc *SpaceCache) refresh() {
 
 func (sc *SpaceCache) LoadCache() {
 	specs := dao.FindAllSpec()
-	for i, _ := range specs {
+	for i := 0; i < len(specs); i++ {
 		spec := specs[i]
 		sc.cache.Set(strconv.Itoa(int(spec.Id)), &spec)
 	}

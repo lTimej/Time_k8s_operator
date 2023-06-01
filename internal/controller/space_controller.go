@@ -6,7 +6,6 @@ import (
 	"Time_k8s_operator/pkg/code"
 	"Time_k8s_operator/pkg/httpResp"
 	"Time_k8s_operator/pkg/logger"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,9 +19,88 @@ type CodeServiceController struct {
 
 func NewCodeServiceController() *CodeServiceController {
 	return &CodeServiceController{
-		logger:      logger.Logger(),
+		logger: logger.Logger(),
+
 		codeService: service.NewCodeService(),
 	}
+}
+
+func (csc *CodeServiceController) GetTemplateSpace(c *gin.Context) *httpResp.Response {
+	space_templates := csc.codeService.GetTemplateSpace()
+	return httpResp.ResponseOk(code.SpaceTemplateGetSuccess, space_templates)
+}
+
+func (csc *CodeServiceController) CreateTemplateSpace(c *gin.Context) *httpResp.Response {
+	//获取参数
+	var reqInfo model.SpaceTemplateCreateOption
+	err := c.ShouldBind(&reqInfo)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	//参数校验
+	csc.logger.Debug(reqInfo)
+	space_template, err := csc.codeService.CreateTemplateSpace(reqInfo)
+	switch err {
+	case service.ErrSpaceTemplateAlreadyExist:
+		return httpResp.ResponseOk(code.SpaceTemplateCreateNameDuplicate, nil)
+	case service.ErrSpaceTemplateCreate:
+		return httpResp.ResponseOk(code.ErrSpaceTemplateCreate, nil)
+	case service.ErrReqParamInvalid:
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	if err != nil {
+		return httpResp.ResponseOk(code.ErrSpaceTemplateCreate, nil)
+	}
+	return httpResp.ResponseOk(code.SpaceTemplateCreateSuccess, space_template)
+}
+
+func (csc *CodeServiceController) EditTemplateSpace(c *gin.Context) *httpResp.Response {
+	//获取参数
+	var reqInfo model.SpaceTemplateCreateOption
+	err := c.ShouldBind(&reqInfo)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	st_id := c.Param("st_id")
+	//参数校验
+	csc.logger.Debug(reqInfo)
+	err = csc.codeService.EditTemplateSpace(reqInfo, st_id)
+	switch err {
+	case service.ErrSpaceTemplateNotExist:
+		return httpResp.ResponseOk(code.SpaceTemplateNotExist, nil)
+	case service.ErrSpaceTemplateUpdate:
+		return httpResp.ResponseOk(code.ErrSpaceTemplateUpdateFailed, nil)
+	case service.ErrReqParamInvalid:
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	if err != nil {
+		return httpResp.ResponseOk(code.ErrSpaceTemplateUpdateFailed, nil)
+	}
+	return httpResp.ResponseOk(code.SpaceTemplateUpdateSuccess, nil)
+}
+func (csc *CodeServiceController) DeleteTemplateSpace(c *gin.Context) *httpResp.Response {
+	//获取参数
+	st_id := c.Param("st_id")
+	//参数校验
+	csc.logger.Debug(st_id)
+	err := csc.codeService.DeleteTemplateSpace(st_id)
+	switch err {
+	case service.ErrSpaceTemplateNotExist:
+		return httpResp.ResponseOk(code.SpaceTemplateNotExist, nil)
+	case service.ErrSpaceTemplateUpdate:
+		return httpResp.ResponseOk(code.ErrSpaceTemplateDelete, nil)
+	case service.ErrReqParamInvalid:
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	if err != nil {
+		return httpResp.ResponseOk(code.ErrSpaceTemplateDelete, nil)
+	}
+	return httpResp.ResponseOk(code.SpaceTemplateDeleteSuccess, nil)
 }
 
 func (csc *CodeServiceController) CreateSpace(c *gin.Context) *httpResp.Response {
@@ -36,22 +114,7 @@ func (csc *CodeServiceController) CreateSpace(c *gin.Context) *httpResp.Response
 	//参数校验
 	csc.logger.Debug(reqInfo)
 
-	// 参数验证
-	// get1, exist1 := c.Get("id")
-	// _, exist2 := c.Get("username")
-	// if !exist1 || !exist2 {
-	// 	fmt.Println("111111111111")
-	// 	c.Status(http.StatusBadRequest)
-	// 	return nil
-	// }
-	// id, ok := get1.(uint32)
-	// if !ok || id != reqInfo.UserId {
-	// 	fmt.Println(err, "11111133111111")
-	// 	c.Status(http.StatusBadRequest)
-	// 	return nil
-	// }
 	space, err := csc.codeService.CreateSpace(reqInfo)
-	fmt.Println(err, "2222222222222222")
 	switch err {
 	case service.ErrNameDuplicate:
 		return httpResp.ResponseOk(code.SpaceCreateNameDuplicate, nil)
@@ -66,7 +129,6 @@ func (csc *CodeServiceController) CreateSpace(c *gin.Context) *httpResp.Response
 	if err != nil {
 		return httpResp.ResponseOk(code.SpaceCreateFailed, nil)
 	}
-
 	return httpResp.ResponseOk(code.SpaceCreateSuccess, space)
 }
 
@@ -76,12 +138,16 @@ func (csc *CodeServiceController) CreateSpaceAndRun(c *gin.Context) *httpResp.Re
 	err := c.ShouldBind(&reqInfo)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
-		// return nil
+		return nil
 	}
+	uidi, ok := c.Get("uid")
+	if !ok {
+		return httpResp.ResponseOk(code.UserNotLogin, nil)
+	}
+	uid := uidi.(string)
 	//参数校验
-	// csc.logger.Debug(reqInfo)
-	space, err := csc.codeService.CreateSpaceAndRun(reqInfo)
-	fmt.Println(err, "2222222222222222")
+	csc.logger.Debug(reqInfo)
+	space, err := csc.codeService.CreateSpaceAndRun(reqInfo, uid)
 	switch err {
 	case service.ErrNameDuplicate:
 		return httpResp.ResponseOk(code.SpaceCreateNameDuplicate, nil)
@@ -120,7 +186,11 @@ func (csc *CodeServiceController) StopSpace(c *gin.Context) *httpResp.Response {
 		c.Status(http.StatusBadRequest)
 		return nil
 	}
-	uid := "1"
+	uidi, ok := c.Get("uid")
+	if !ok {
+		return httpResp.ResponseOk(code.UserNotLogin, nil)
+	}
+	uid := uidi.(string)
 	err = csc.codeService.StopSpace(req.Id, uid, req.Sid)
 	if err != nil {
 		if err == service.ErrWorkSpaceIsNotRunning {
@@ -137,11 +207,16 @@ func (csc *CodeServiceController) StartSpace(c *gin.Context) *httpResp.Response 
 	}
 	err := c.ShouldBind(&req)
 	if err != nil {
-		// c.logger.Warnf("获取参数失败:%v", err)
+		csc.logger.Warnf("获取参数失败:%v", err)
 		c.Status(http.StatusBadRequest)
 		return nil
 	}
-	space, err := csc.codeService.StartSpace(req.Id, 1, "1")
+	uidi, ok := c.Get("uid")
+	if !ok {
+		return httpResp.ResponseOk(code.UserNotLogin, nil)
+	}
+	uid := uidi.(string)
+	space, err := csc.codeService.StartSpace(req.Id, 1, uid)
 	switch err {
 	case service.ErrWorkSpaceNotExist:
 		return httpResp.ResponseOk(code.SpaceStartNotExist, nil)
@@ -171,7 +246,12 @@ func (csc *CodeServiceController) DeleteSpace(c *gin.Context) *httpResp.Response
 		return nil
 	}
 	csc.logger.Debug("id:", req.Id)
-	err = csc.codeService.DeleteSpace(req.Id)
+	uidi, ok := c.Get("uid")
+	if !ok {
+		return httpResp.ResponseOk(code.UserNotLogin, nil)
+	}
+	uid := uidi.(string)
+	err = csc.codeService.DeleteSpace(req.Id, uid)
 	if err != nil {
 		if err == service.ErrOtherSpaceIsRunning {
 			return httpResp.ResponseOk(code.SpaceDeleteIsRunning, nil)
@@ -179,4 +259,14 @@ func (csc *CodeServiceController) DeleteSpace(c *gin.Context) *httpResp.Response
 		return httpResp.ResponseOk(code.SpaceDeleteFailed, nil)
 	}
 	return httpResp.ResponseOk(code.SpaceDeleteSuccess, nil)
+}
+
+func (csc *CodeServiceController) GetSpace(c *gin.Context) *httpResp.Response {
+	user_idi, ok := c.Get("id")
+	if !ok {
+		return httpResp.ResponseOk(code.UserNotLogin, nil)
+	}
+	user_id := user_idi.(uint32)
+	spaces := csc.codeService.GetSpace(user_id)
+	return httpResp.ResponseOk(code.SpaceGetSuccess, spaces)
 }

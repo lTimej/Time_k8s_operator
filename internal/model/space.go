@@ -93,7 +93,7 @@ type SpaceCreateOption struct {
 }
 
 type SpaceTemplateCreateOption struct {
-	KindId      uint32 `json:"kind_id”`
+	KindId      uint32 `json:"kind_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Tags        string `json:"tags"`   //标签

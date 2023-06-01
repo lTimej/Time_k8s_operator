@@ -44,10 +44,10 @@ func VerifyToken(tokenString string) (*MyClaim, error) {
 	})
 	if err != nil {
 		fmt.Println(err)
-		return nil, ErrTokenExpire
+		return nil, ErrToKenInvalid
 	}
 	if myclaim, ok := token.Claims.(*MyClaim); ok && token.Valid {
 		return myclaim, nil
 	}
-	return nil, ErrToKenInvalid
+	return nil, ErrTokenExpire
 }

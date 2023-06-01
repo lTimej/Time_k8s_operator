@@ -4,6 +4,7 @@ import (
 	"Time_k8s_operator/internal/dao"
 	"Time_k8s_operator/internal/model"
 	"Time_k8s_operator/pkg/cache"
+	"fmt"
 	"time"
 )
 
@@ -34,10 +35,11 @@ func newTemplateCache() *TemplateCache {
 func (tc *TemplateCache) LoadCache() {
 	tmps := dao.FindAllSpaceTemplateByUsing()
 	tps := make(map[uint32]*model.SpaceTemplate, len(tmps))
-	for _, tmp := range tmps {
-		tp := tmp.Id
-		tps[tp] = &tmp
+	for i := 0; i < len(tmps); i++ {
+		tmp := tmps[i]
+		tps[tmp.Id] = &tmp
 	}
+	fmt.Printf("tps:%#v\n", tps)
 	tc.cache.Set(TemplateKey, tps)
 
 	kinds := dao.FindAllTemplateKind()
@@ -49,16 +51,22 @@ func (tc *TemplateCache) LoadCache() {
 	tc.cache.Set(KindsKey, kis)
 }
 
-func (tc *TemplateCache) GetSpaceTemplate(id uint32) *model.SpaceTemplate {
+func (tc *TemplateCache) GetSpaceTemplate(st_id uint32) *model.SpaceTemplate {
 	item, ok := tc.cache.Get(TemplateKey)
 	if !ok {
 		return nil
 	}
-	template, ok := item.(map[uint32]*model.SpaceTemplate)
+	templates, ok := item.(map[uint32]*model.SpaceTemplate)
 	if !ok {
 		return nil
 	}
-	temp := *(template[id])
+	temp := model.SpaceTemplate{}
+	if template, ok := templates[st_id]; ok {
+		temp = *template
+	} else {
+		return nil
+	}
+
 	return &temp
 }
 
