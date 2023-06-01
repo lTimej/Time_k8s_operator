@@ -39,7 +39,7 @@ func FindOneByUserIdAndName(user_id uint32, name string) bool {
 
 func FindCountByUserId(user_id uint32) int64 {
 	var count int64
-	db.DB.Table("space").Where("user_id").Count(&count)
+	db.DB.Table("space").Where("user_id = ? AND status != 0",user_id).Count(&count)
 	return count
 }
 
