@@ -21,6 +21,11 @@ func FindAllSpec() (specs []model.SpaceSpec) {
 	return
 }
 
+// func FindOneSpec() (specs []model.SpaceSpec) {
+// 	db.DB.Find(&specs)
+// 	return
+// }
+
 func FindAllSpaceByUserId(user_id uint32) (spaces []*model.Space) {
 	db.DB.Where("user_id = ? AND status != 0", user_id).Find(&spaces)
 	return
@@ -34,7 +39,7 @@ func FindOneByUserIdAndName(user_id uint32, name string) bool {
 
 func FindCountByUserId(user_id uint32) int64 {
 	var count int64
-	db.DB.Table("space").Where("user_id = ? AND status != 0",user_id).Count(&count)
+	db.DB.Table("space").Where("user_id = ? AND status != 0", user_id).Count(&count)
 	return count
 }
 
@@ -96,4 +101,15 @@ func DeleteSpaceById(space_id uint32) error {
 		return err
 	}
 	return nil
+}
+
+func InsertSpaceSpec(space_spec *model.SpaceSpec) (spec_id uint32, err error) {
+	query := db.DB.Create(space_spec)
+	err = query.Error
+	if err != nil {
+		return 0, err
+	}
+	var ss model.SpaceSpec
+	query.Where("cpu_spec = ? AND name = ? AND mem_spec = ? AND storage_spec = ? AND description = ?", space_spec.CpuSpec, space_spec.Name, space_spec.MemSpec, space_spec.StorageSpec, space_spec.Description).First(&ss)
+	return ss.Id, nil
 }

@@ -29,6 +29,7 @@ const (
 )
 
 var (
+	ErrSpaceSpecCreate           = errors.New("空间规格创建失败")
 	ErrSpaceTemplateCreate       = errors.New("空间模板创建失败")
 	ErrSpaceTemplateUpdate       = errors.New("空间模板修改失败")
 	ErrSpaceTemplateDelete       = errors.New("空间模板删除失败")
@@ -79,6 +80,23 @@ func (cs *CodeService) GetTemplateSpace() []*model.SpaceTemplate {
 	return space_templates
 }
 
+func (cs *CodeService) CreateSpaceSpec(req model.SpaceSpecCreateOption) (*model.SpaceSpec, error) {
+	space_spec := &model.SpaceSpec{
+		CpuSpec:     req.CpuSpec,
+		MemSpec:     req.MemSpec,
+		StorageSpec: req.StorageSpec,
+		Name:        req.Name,
+		Description: req.Description,
+	}
+	ss_id, err := dao.InsertSpaceSpec(space_spec)
+	if err != nil {
+		cs.logger.Errorf("创建空间规格失败:%v", err)
+		return nil, ErrSpaceSpecCreate
+	}
+	space_spec.Id = ss_id
+	return space_spec, nil
+}
+
 func (cs *CodeService) CreateTemplateSpace(req model.SpaceTemplateCreateOption) (*model.SpaceTemplate, error) {
 	_, ok := dao.FindOneTemplateByName(req.Name)
 	if !ok {
@@ -105,17 +123,19 @@ func (cs *CodeService) CreateTemplateSpace(req model.SpaceTemplateCreateOption) 
 	return space_template, nil
 }
 
-func (cs *CodeService) EditTemplateSpace(req model.SpaceTemplateCreateOption, st_id string) error {
+func (cs *CodeService) EditTemplateSpace(req model.SpaceTemplateCreateOption, st_id string) (*model.SpaceTemplate, error) {
 	_, ok := dao.FindOneTemplateById(st_id)
 	if ok {
-		return ErrSpaceTemplateNotExist
+		return nil, ErrSpaceTemplateNotExist
 	}
 	err := dao.UpdateSpaceTemplate(req, st_id)
 	if err != nil {
 		cs.logger.Errorf("修改空间模板失败:%v", err)
-		return ErrSpaceTemplateUpdate
+		return nil, ErrSpaceTemplateUpdate
 	}
-	return nil
+	st, _ := dao.FindOneTemplateById(st_id)
+
+	return &st, nil
 }
 
 func (cs *CodeService) DeleteTemplateSpace(st_id string) error {

@@ -43,3 +43,28 @@ template_kin:
       name: "脚本"
   four:  
       name: "系统"
+space_spec:
+  one:
+      name: "规格1"
+      cpu_spec: "2C"
+      mem_spec: "500M"
+      storage_spec: "2G"
+      description: ""
+  two:  
+      name: "规格2"
+      cpu_spec: "2C"
+      mem_spec: "1G"
+      storage_spec: "10G"
+      description: ""
+  three:
+      name: "规格3"
+      cpu_spec: "4C"
+      mem_spec: "2G"
+      storage_spec: "20G"
+      description: ""
+  four:  
+      name: "规格4"
+      cpu_spec: "4C"
+      mem_spec: "2G"
+      storage_spec: "40G"
+      description: ""

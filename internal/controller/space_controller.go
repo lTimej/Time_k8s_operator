@@ -25,6 +25,30 @@ func NewCodeServiceController() *CodeServiceController {
 	}
 }
 
+func (csc *CodeServiceController) CreateSpaceSpec(c *gin.Context) *httpResp.Response {
+	//获取参数
+	var reqInfo model.SpaceSpecCreateOption
+	err := c.ShouldBind(&reqInfo)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	//参数校验
+	csc.logger.Debug(reqInfo)
+	space_spec, err := csc.codeService.CreateSpaceSpec(reqInfo)
+	switch err {
+	case service.ErrSpaceSpecCreate:
+		return httpResp.ResponseOk(code.ErrSpaceSpecCreate, nil)
+	case service.ErrReqParamInvalid:
+		c.Status(http.StatusBadRequest)
+		return nil
+	}
+	if err != nil {
+		return httpResp.ResponseOk(code.ErrSpaceSpecCreate, nil)
+	}
+	return httpResp.ResponseOk(code.SpaceSpecCreateSuccess, space_spec)
+}
+
 func (csc *CodeServiceController) GetTemplateKind(c *gin.Context) *httpResp.Response {
 	template_kinds := csc.codeService.GetTemplateKind()
 	return httpResp.ResponseOk(code.TemplateKindGetSuccess, template_kinds)
@@ -72,7 +96,7 @@ func (csc *CodeServiceController) EditTemplateSpace(c *gin.Context) *httpResp.Re
 	st_id := c.Param("st_id")
 	//参数校验
 	csc.logger.Debug(reqInfo)
-	err = csc.codeService.EditTemplateSpace(reqInfo, st_id)
+	space_template, err := csc.codeService.EditTemplateSpace(reqInfo, st_id)
 	switch err {
 	case service.ErrSpaceTemplateNotExist:
 		return httpResp.ResponseOk(code.SpaceTemplateNotExist, nil)
@@ -85,7 +109,7 @@ func (csc *CodeServiceController) EditTemplateSpace(c *gin.Context) *httpResp.Re
 	if err != nil {
 		return httpResp.ResponseOk(code.ErrSpaceTemplateUpdateFailed, nil)
 	}
-	return httpResp.ResponseOk(code.SpaceTemplateUpdateSuccess, nil)
+	return httpResp.ResponseOk(code.SpaceTemplateUpdateSuccess, space_template)
 }
 func (csc *CodeServiceController) DeleteTemplateSpace(c *gin.Context) *httpResp.Response {
 	//获取参数

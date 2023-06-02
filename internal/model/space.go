@@ -100,3 +100,11 @@ type SpaceTemplateCreateOption struct {
 	Image       string `json:"image"`  //镜像
 	Avatar      string `json:"avatar"` //logo
 }
+
+type SpaceSpecCreateOption struct{
+	CpuSpec     string `json:"cpu_spec"`
+	MemSpec     string `json:"mem_spec"`
+	StorageSpec string `json:"storage_spec"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
