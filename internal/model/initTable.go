@@ -19,17 +19,7 @@ func InitTable() error {
 	return nil
 }
 
-func InitTableData() error {
-	viper.SetConfigType("yaml")
-	viper.SetConfigName("data_table.yaml")
-	viper.AddConfigPath("./templates")
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			fmt.Println("file not found.")
-			return errors.New("数据库初始化配置文件不存在")
-		}
-		panic(err)
-	}
+func initSpaceTemplate() error {
 	templates := viper.GetStringMap("space_template")
 	for _, val := range templates {
 		template := val.(map[string]interface{})
@@ -56,6 +46,50 @@ func InitTableData() error {
 			return err
 		}
 
+	}
+	return nil
+}
+
+func initTemplateKind() error {
+	kinds := viper.GetStringMap("template_kin")
+	for _, val := range kinds {
+		kind := val.(map[string]interface{})
+		template_kind := &TemplateKind{
+			Name: kind["name"].(string),
+		}
+		var tkk TemplateKind
+		db.DB.Where("name = ?", template_kind.Name).First(&tkk)
+		if tkk.Name != "" {
+			fmt.Println("模板类型已存在", tkk.Name)
+			continue
+		}
+		if err := db.DB.Create(template_kind).Error; err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+	}
+	return nil
+}
+
+func InitTableData() error {
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("data_table.yaml")
+	viper.AddConfigPath("./templates")
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			fmt.Println("file not found.")
+			return errors.New("数据库初始化配置文件不存在")
+		}
+		panic(err)
+	}
+	err := initSpaceTemplate()
+	if err != nil {
+		return err
+	}
+	err = initTemplateKind()
+	if err != nil {
+		return err
 	}
 	return nil
 }

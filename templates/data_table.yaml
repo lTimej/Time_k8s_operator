@@ -34,3 +34,12 @@ space_template:
       description: "Ubuntu、Python3.8"
       image: "k8s_controller:v2"
       avatar: "ubuntu.png"
+template_kin:
+  one:
+      name: "后端"
+  two:  
+      name: "前端"
+  three:
+      name: "脚本"
+  four:  
+      name: "系统"
