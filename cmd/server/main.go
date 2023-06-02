@@ -14,7 +14,9 @@ import (
 
 func main() {
 	var initTable string
+	var initTableData string
 	flag.StringVar(&initTable, "i", "", "the server run to init table")
+	flag.StringVar(&initTableData, "d", "", "the server run to init table data")
 	flag.Parse()
 	//初始化配置
 	if err := conf.InitConf(); err != nil {
@@ -36,6 +38,12 @@ func main() {
 	if initTable == "table" {
 		if err := model.InitTable(); err != nil {
 			panic(fmt.Errorf("init table fail, reason:%s", err.Error()))
+		}
+	}
+	//初始化数据库表数据
+	if initTableData == "data" {
+		if err := model.InitTableData(); err != nil {
+			panic(fmt.Errorf("init table data fail, reason:%s", err.Error()))
 		}
 	}
 	// 创建gin路由

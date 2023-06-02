@@ -48,7 +48,7 @@ type GrpcConf struct {
 func InitConf() error {
 	viper.SetConfigName("application")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../../conf")
+	viper.AddConfigPath("./conf")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return err

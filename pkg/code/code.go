@@ -63,6 +63,7 @@ const (
 	SpaceTemplateDeleteSuccess
 	SpaceTemplateGetSuccess
 	SpaceGetSuccess
+	TemplateKindGetSuccess
 )
 
 type UserStatus uint32
@@ -128,6 +129,7 @@ var messageForCode = map[uint32]string{
 	SpaceTemplateDeleteSuccess:       "模板空间删除成功",
 	SpaceTemplateGetSuccess:          "模板空间获取成功",
 	SpaceGetSuccess:                  "用户空间获取成功",
+	TemplateKindGetSuccess:           "模板类型获取成功",
 }
 
 func GetMessage(code uint32) string {

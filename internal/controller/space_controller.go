@@ -25,6 +25,11 @@ func NewCodeServiceController() *CodeServiceController {
 	}
 }
 
+func (csc *CodeServiceController) GetTemplateKind(c *gin.Context) *httpResp.Response {
+	template_kinds := csc.codeService.GetTemplateKind()
+	return httpResp.ResponseOk(code.TemplateKindGetSuccess, template_kinds)
+}
+
 func (csc *CodeServiceController) GetTemplateSpace(c *gin.Context) *httpResp.Response {
 	space_templates := csc.codeService.GetTemplateSpace()
 	return httpResp.ResponseOk(code.SpaceTemplateGetSuccess, space_templates)

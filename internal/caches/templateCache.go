@@ -44,9 +44,9 @@ func (tc *TemplateCache) LoadCache() {
 
 	kinds := dao.FindAllTemplateKind()
 	kis := make(map[uint32]*model.TemplateKind, len(kinds))
-	for _, kind := range kinds {
-		ki := kind.Id
-		kis[ki] = &kind
+	for i := 0; i < len(kinds); i++ {
+		ki := kinds[i]
+		kis[ki.Id] = &ki
 	}
 	tc.cache.Set(KindsKey, kis)
 }
@@ -79,11 +79,9 @@ func (tc *TemplateCache) GetAllSpaceTemplate() (templates []*model.SpaceTemplate
 	if !ok {
 		return nil
 	}
-	i := 0
 	for _, val := range template {
 		p := *(val)
-		templates[i] = &p
-		i += 1
+		templates = append(templates, &p)
 	}
 	return
 }
@@ -97,11 +95,9 @@ func (tc *TemplateCache) GetAllKind() (kinds []*model.TemplateKind) {
 	if !ok {
 		return nil
 	}
-	i := 0
 	for _, val := range kind {
 		k := *(val)
-		kinds[i] = &k
-		i += 1
+		kinds = append(kinds, &k)
 	}
 	return
 }

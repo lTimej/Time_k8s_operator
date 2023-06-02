@@ -69,6 +69,11 @@ func NewCodeService() *CodeService {
 	}
 }
 
+func (cs *CodeService) GetTemplateKind() []*model.TemplateKind {
+	template_kinds := cs.templateCache.GetAllKind()
+	return template_kinds
+}
+
 func (cs *CodeService) GetTemplateSpace() []*model.SpaceTemplate {
 	space_templates := dao.FindAllTemplate()
 	return space_templates

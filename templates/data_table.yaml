@@ -1,0 +1,36 @@
+space_template:
+  one:
+      name: "All in One"
+      kind_id: 1
+      tags: "Go、Python、Vue"
+      description: "支持Go、Python、Vue等"
+      image: "k8s_controller:v2"
+      avatar: "All.jpg"
+  two:  
+      name: "Python"
+      kind_id: 1
+      tags: "Python 3.8.10"
+      description: "支持Go、Python、Vue等"
+      image: "Python3、Pip3"
+      avatar: "python.jpg"
+  three:
+      name: "Go"
+      kind_id: 1
+      tags: "Go 1.19.5"
+      description: "Go、go-tools"
+      image: "k8s_controller:v2"
+      avatar: "go.png"
+  four:  
+      name: "Java"
+      kind_id: 1
+      tags: "JDK 1.8.0 Maven 3.8.1"
+      description: "Java、Spring Boot"
+      image: "k8s_controller:v2"
+      avatar: "java.jpg"
+  five:  
+      name: "Ubuntu"
+      kind_id: 1
+      tags: "Ubuntu 18.04"
+      description: "Ubuntu、Python3.8"
+      image: "k8s_controller:v2"
+      avatar: "ubuntu.png"

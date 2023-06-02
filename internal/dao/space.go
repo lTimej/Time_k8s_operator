@@ -16,11 +16,6 @@ func FindAllSpaceTemplateByUsing() (tmps []model.SpaceTemplate) {
 	return
 }
 
-func FindAllTemplateKind() (kinds []model.TemplateKind) {
-	db.DB.Find(&kinds)
-	return
-}
-
 func FindAllSpec() (specs []model.SpaceSpec) {
 	db.DB.Find(&specs)
 	return

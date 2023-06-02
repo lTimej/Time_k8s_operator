@@ -26,8 +26,13 @@ func Register(router *gin.Engine) {
 		resource_group.GET("/network", Response(resource_controller.GetNetwork))
 	}
 
-	space_template_group := router.Group("/space/template")
+	template_kind_group := router.Group("/template/kind")
 	space_controller := controller.NewCodeServiceController()
+	{
+		template_kind_group.GET("/get", Response(space_controller.GetTemplateKind))
+	}
+
+	space_template_group := router.Group("/space/template")
 	{
 		space_template_group.GET("/get", Response(space_controller.GetTemplateSpace))
 		space_template_group.POST("/create", Response(space_controller.CreateTemplateSpace))

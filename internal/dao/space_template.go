@@ -3,6 +3,7 @@ package dao
 import (
 	"Time_k8s_operator/internal/dao/db"
 	"Time_k8s_operator/internal/model"
+	"fmt"
 )
 
 func FindAllTemplate() (space_template []*model.SpaceTemplate) {
@@ -11,6 +12,7 @@ func FindAllTemplate() (space_template []*model.SpaceTemplate) {
 }
 
 func FindOneTemplateByName(name string) (space_template model.SpaceTemplate, ok bool) {
+	fmt.Println(name, "8888888", db.DB)
 	db.DB.Where("name = ? AND status = 1", name).First(&space_template)
 	return space_template, space_template == model.SpaceTemplate{}
 }
