@@ -15,7 +15,7 @@ var (
 	ErrTokenExpire  = errors.New("token过期")
 )
 
-const TokenExpireDuration = time.Hour * 24
+const TokenExpireDuration = time.Hour * 2
 
 type MyClaim struct {
 	Username string
@@ -44,10 +44,10 @@ func VerifyToken(tokenString string) (*MyClaim, error) {
 	})
 	if err != nil {
 		fmt.Println(err)
-		return nil, ErrToKenInvalid
+		return nil, ErrTokenExpire
 	}
 	if myclaim, ok := token.Claims.(*MyClaim); ok && token.Valid {
 		return myclaim, nil
 	}
-	return nil, ErrTokenExpire
+	return nil, ErrToKenInvalid
 }

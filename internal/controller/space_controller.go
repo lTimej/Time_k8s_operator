@@ -25,6 +25,11 @@ func NewCodeServiceController() *CodeServiceController {
 	}
 }
 
+func (csc *CodeServiceController) GetSpaceSpec(c *gin.Context) *httpResp.Response {
+	space_specs := csc.codeService.GetSpaceSpec()
+	return httpResp.ResponseOk(code.SpaceSpecGetSuccess, space_specs)
+}
+
 func (csc *CodeServiceController) CreateSpaceSpec(c *gin.Context) *httpResp.Response {
 	//获取参数
 	var reqInfo model.SpaceSpecCreateOption

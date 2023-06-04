@@ -10,12 +10,12 @@ import (
 )
 
 func InitTable() error {
-	// if err := db.DB.AutoMigrate(&User{}, &TemplateKind{}, &SpaceTemplate{}, &SpaceSpec{}, &Space{}); err != nil {
-	// 	return err
-	// }
-	if err := db.DB.AutoMigrate(&Space{}); err != nil {
+	if err := db.DB.AutoMigrate(&User{}, &TemplateKind{}, &SpaceTemplate{}, &SpaceSpec{}, &Space{}); err != nil {
 		return err
 	}
+	// if err := db.DB.AutoMigrate(&Space{}); err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
@@ -72,6 +72,24 @@ func initTemplateKind() error {
 	return nil
 }
 
+func initSpaceSpec() error {
+	specs := viper.GetStringMap("space_spec")
+	for _, val := range specs {
+		spec := val.(map[string]interface{})
+		space_spec := &SpaceSpec{
+			Name:        spec["name"].(string),
+			CpuSpec:     spec["cpu_spec"].(string),
+			MemSpec:     spec["mem_spec"].(string),
+			StorageSpec: spec["storage_spec"].(string),
+			Description: spec["description"].(string),
+		}
+		if err := db.DB.Create(space_spec).Error; err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+	return nil
+}
 func InitTableData() error {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("data_table.yaml")
@@ -88,6 +106,10 @@ func InitTableData() error {
 		return err
 	}
 	err = initTemplateKind()
+	if err != nil {
+		return err
+	}
+	err = initSpaceSpec()
 	if err != nil {
 		return err
 	}

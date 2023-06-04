@@ -70,6 +70,26 @@ func NewCodeService() *CodeService {
 	}
 }
 
+type Spec struct {
+	Name string
+	Id   uint32
+}
+
+func (cs *CodeService) GetSpaceSpec() []*Spec {
+	space_specs := cs.specCache.GetAllSpaceSpec()
+
+	var specs []*Spec
+	for _, spec := range space_specs {
+		name := spec.Name + ":" + spec.CpuSpec + " " + spec.MemSpec + " " + spec.StorageSpec
+		s := &Spec{
+			Name: name,
+			Id:   spec.Id,
+		}
+		specs = append(specs, s)
+	}
+	return specs
+}
+
 func (cs *CodeService) GetTemplateKind() []*model.TemplateKind {
 	template_kinds := cs.templateCache.GetAllKind()
 	return template_kinds

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"strconv"
 	"sync"
 )
@@ -46,8 +47,10 @@ func (c *Cache) GetByInt(key int) (interface{}, bool) {
 }
 
 func (c *Cache) GetAll() []interface{} {
-	c.lock.RLocker()
+	c.lock.RLock()
+	fmt.Println(111111111)
 	defer c.lock.RUnlock()
+	fmt.Println(222222)
 	ret := make([]interface{}, 0, len(c.data))
 	for _, val := range c.data {
 		ret = append(ret, val)

@@ -66,6 +66,7 @@ const (
 	TemplateKindGetSuccess
 	ErrSpaceSpecCreate
 	SpaceSpecCreateSuccess
+	SpaceSpecGetSuccess
 )
 
 type UserStatus uint32
@@ -134,6 +135,7 @@ var messageForCode = map[uint32]string{
 	TemplateKindGetSuccess:           "模板类型获取成功",
 	ErrSpaceSpecCreate:               "空间规格创建失败",
 	SpaceSpecCreateSuccess:           "空间规格创建成功",
+	SpaceSpecGetSuccess:              "空间规格获取成功",
 }
 
 func GetMessage(code uint32) string {

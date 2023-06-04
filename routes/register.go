@@ -30,7 +30,8 @@ func Register(router *gin.Engine) {
 	space_controller := controller.NewCodeServiceController()
 	{
 		// space_spec_group.GET("/get", Response(space_controller.GetTemplateKind))
-		space_spec_group.GET("/create", Response(space_controller.CreateSpaceSpec))
+		space_spec_group.POST("/create", Response(space_controller.CreateSpaceSpec))
+		space_spec_group.GET("/get", Response(space_controller.GetSpaceSpec))
 	}
 
 	template_kind_group := router.Group("/template/kind")
